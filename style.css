@@ -1,0 +1,400 @@
+html, body, #cesiumContainer { 
+  width: 100%; 
+  height: 100%; 
+  margin: 0; 
+  padding: 0; 
+}
+
+/* MENU ENVIRONNEMENT (MILIEU GAUCHE, FOND JAUNE) */
+#environmentMenu {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  background: rgba(255, 193, 7, 0.5); /* Jaune semi-transparent */
+  
+  /* AJOUT DE LA BORDURE */
+  border: 1px solid rgba(255, 255, 255, 2);
+  
+  padding: 42px;
+  border-radius: 22px;
+  color: white;
+  font-family: sans-serif;
+  z-index: 1000;
+  max-width: 350px;
+  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
+}
+
+/* Style pour la "poignée" du menu Environnement (à gauche) */
+#environmentMenu.collapsed {
+  /* Déplace le menu à gauche de sa propre largeur moins 25px (la poignée) */
+  transform: translate(calc(-100% + 25px), -50%);
+}
+/* MENU TRACE (HAUT DROITE, FOND BLEU) */
+#traceMenu {
+  position: absolute;
+  top: 100px;
+  right: 10px;
+  background: rgba(39, 53, 245, 0.5); 
+  
+  /* AJOUT DE LA BORDURE */
+  border: 1px solid rgba(255, 255, 255, 2);
+  
+  padding: 42px;
+  border-radius: 22px;
+  color: white;
+  font-family: sans-serif;
+  z-index: 1000;
+  max-width: 350px;
+  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
+}
+
+/* MENU MOBILE (HAUT GAUCHE, FOND VERT) */
+#mobileMenu {
+  position: absolute;
+  top: 10px;
+  left: 10px; 
+  background: rgba(76, 175, 80, 0.5); 
+  
+  /* AJOUT DE LA BORDURE */
+  border: 1px solid rgba(255, 255, 255, 2); /* Bordure blanche semi-transparente */
+  
+  padding: 42px;
+  border-radius: 22px;
+  color: white;
+  font-family: sans-serif;
+  z-index: 1000;
+  max-width: 350px;
+  transform: none; 
+  right: auto;
+  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
+}
+
+/* MENU ACTIONS/RESET (BAS DROITE) */
+#resetMenu {
+  position: absolute;
+  bottom: 30px; /* because menu Césium */
+  right: 10px;
+  background: rgba(255, 26, 0, 0.5);
+  
+  /* AJOUT DE LA BORDURE */
+  border: 1px solid rgba(255, 255, 255,2);
+  
+  padding: 42px;
+  border-radius: 22px;
+  color: white;
+  font-family: sans-serif;
+  z-index: 1000;
+  max-width: 350px;
+  text-align: right;
+  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
+}
+
+/* Cache le titre "Actions" dans le menu Reset */
+#resetMenu h3 {
+    display: none;
+}
+
+/* --- RÈGLES GÉNÉRALES --- */
+
+.control-panel h3 { /* Appliqué à #traceMenu h3 et #mobileMenu h3 */
+  margin: 0 0 10px 0;
+  font-size: 16px;
+}
+
+.control-group {
+  margin-bottom: 12px;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 13px;
+}
+
+#fileInput, #modelInput {
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #666;
+  background: #333;
+  color: white;
+  font-size: 12px;
+}
+
+button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-right: 5px;
+}
+
+button:hover {
+  background: #45a049;
+}
+
+button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+button.danger {
+  background: #f44336;
+}
+
+button.danger:hover {
+  background: #da190b;
+}
+
+#status {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 32px;
+  display: none;
+}
+
+#status.info {
+  background: rgba(33, 150, 243, 0.3);
+  border: 1px solid #2196F3;
+}
+
+#status.error {
+  background: rgba(244, 67, 54, 0.3);
+  border: 1px solid #f44336;
+}
+
+#status.success {
+  background: rgba(76, 175, 80, 0.3);
+  border: 1px solid #4CAF50;
+}
+#status {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+}
+
+.slider-group {
+  margin-top: 10px;
+}
+
+.slider-group label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+input[type="range"] {
+  width: 100%;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+}
+
+.model-name {
+  padding: 6px 10px;
+  background: #333;
+  border-radius: 4px;
+  border: 1px solid #666;
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 5px;
+  display: none;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.rotate-btn-container {
+  flex-shrink: 0;
+}
+
+.slider-container {
+  flex-grow: 1;
+}
+
+.slider-container label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+
+/* --- ANIMATION ET SPINNER GLOBAL --- */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+#globalSpinner { 
+  display: none; 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background: rgba(0,0,0,0.7); 
+  z-index: 9999; 
+  justify-content: center; 
+  align-items: center; 
+  flex-direction: column; 
+  color: white; 
+  font-family: sans-serif;
+}
+
+#globalSpinner div:nth-child(1) { 
+  font-size: 20px; 
+  margin-bottom: 20px;
+}
+
+#globalSpinner div:nth-child(2) { 
+  width: 50px; 
+  height: 50px; 
+  border: 5px solid #f3f3f3; 
+  border-top: 5px solid #3498db; 
+  border-radius: 50%; 
+  animation: spin 1s linear infinite;
+}
+
+#globalSpinnerText { 
+  margin-top: 20px; 
+  font-size: 14px;
+}
+
+/* ************************************************* */
+/* NOUVELLES RÈGLES POUR LE MODE DISSIMULÉ */
+/* ************************************************* */
+
+/* Style pour la "poignée" du menu Mobile (à gauche) */
+#mobileMenu.collapsed {
+  /* Déplace le menu à gauche de sa propre largeur moins 20px (la poignée) */
+  transform: translateX(calc(-100% + 25px));
+}
+
+/* Style pour la "poignée" des menus de droite (Trace et Actions) */
+#traceMenu.collapsed,
+#resetMenu.collapsed {
+  /* Déplace le menu à droite de sa propre largeur moins 20px (la poignée) */
+  transform: translateX(calc(100% - 25px));
+}
+
+/* Vous pouvez augmenter la largeur de la poignée en changeant le '20px' ci-dessus. */
+/* ✅ TOOLTIP CUSTOM POUR BOUTON CHARGEMENT MODÈLE */
+.tooltip-btn {
+  position: relative;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  opacity: 0;
+  background: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 100%; /* Apparition au-dessus du bouton */
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 250px;
+  font-size: 12px;
+  line-height: 1.4;
+  border: 1px solid #666;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  margin-bottom: 5px; /* Espace sous le bouton */
+}
+
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* Flèche pointant vers le bouton */
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+
+.tooltip-btn:hover .tooltip-content,
+.tooltip-btn:focus .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Adaptation mobile : Tooltip plus large si écran petit */
+@media (max-width: 768px) {
+  .tooltip-content {
+    left: 0;
+    right: 0;
+    transform: none;
+    width: auto;
+    max-width: none;
+    bottom: auto;
+    top: 100%; /* Apparition en dessous sur mobile */
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
+  
+  .tooltip-content::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #333;
+  }
+}
+/* ✅ Z-INDEX + FILIGRANES POUR MENUS (anti-chevauchement + visibilité) */
+.control-panel {
+  z-index: 5; /* Base pour tous les menus */
+  opacity: 1; /* Pleine visibilité par défaut */
+  transition: z-index 0.2s ease, opacity 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease; /* Fluide */
+}
+
+.control-panel.hovered {
+  z-index: 10; /* Priorité sur survol/touch */
+  opacity: 1; /* Plein focus */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* Glow blanc pour "actif" */
+}
+
+/* Filigrane pour les menus NON hovered (quand un autre est actif) */
+.control-panel:not(.hovered) {
+  opacity: 0.6; /* Plus léger */
+  filter: blur(1px); /* Effet filigrane subtil (optionnel, retirez si trop fort) */
+}
+
+/* Reset : Si AUCUN menu n'est hovered, tout redevient normal */
+body.no-hovered-menu .control-panel {
+  opacity: 1;
+  filter: none;
+}
+
+/* Adaptation mobile : Moins de blur pour perf */
+@media (max-width: 768px) {
+  .control-panel:not(.hovered) {
+    filter: blur(0.5px); /* Plus léger sur petit écran */
+  }
+}
+/* Optionnel : Icône pour le bouton 3D */
+#loadCesiumKeyBtn::before {
+  content: "🌍 ";
+  font-size: 14px;
+}
