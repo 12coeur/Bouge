@@ -23,20 +23,19 @@ const AVAILABLE_MODELS = [
    'PP Niviuk Zéno Bleue Mauve.glb',
    'PP Gin Boom orange.glb',
    'PP Ozone Zénno2 jaune.glb',
-   'Avion Fokker.glb',
+   
    'Helicoptere.glb',
-   '2CV.glb',
-   'Marcheur.glb',
-   'Millenium.glb',
-   'Darlmat.glb',
    'CampingCar.glb',
-   'Scorpio.glb',
    'Chien.glb',
    'Vélo.glb',
    'Bateau.glb',
    'Randonneur.glb',
     'Avion.glb',
-'Cheval.glb',
+    'Cheval.glb',
+    'Marcheur.glb',
+	'','', '', '',
+  
+  
   // Ajoutez ici tous vos fichiers GLB
 ];
 /**
