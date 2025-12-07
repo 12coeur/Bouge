@@ -97,6 +97,7 @@ html, body, #cesiumContainer {
 
 /* --- RÈGLES GÉNÉRALES --- */
 
+
 .control-panel h3 { /* Appliqué à #traceMenu h3 et #mobileMenu h3 */
   margin: 0 0 10px 0;
   font-size: 16px;
@@ -362,6 +363,17 @@ input[type="range"] {
     border-bottom-color: #333;
   }
 }
+.fl115-label {
+  font-size: 22px;              /* plus gros */
+  font-weight: 700; 
+  color: red;
+  text-shadow:
+    -1px -1px 0 white,
+     1px -1px 0 white,
+    -1px  1px 0 white,
+     1px  1px 0 white;
+}
+
 /* ✅ Z-INDEX + FILIGRANES POUR MENUS (anti-chevauchement + visibilité) */
 .control-panel {
   z-index: 5; /* Base pour tous les menus */
