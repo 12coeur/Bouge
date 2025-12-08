@@ -2,78 +2,72 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
+  <!-- 🎯 VIEWPORT ESSENTIEL POUR LE RESPONSIVE -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>BOUGE avec 12Coeur</title>
 
-
-<!-- CDN Cesium mis à jour -->
-<script src="https://cdn.jsdelivr.net/npm/cesium@1.135/Build/Cesium/Cesium.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/cesium@1.135/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <!-- CDN Cesium mis à jour -->
+  <script src="https://cdn.jsdelivr.net/npm/cesium@1.135/Build/Cesium/Cesium.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/cesium@1.135/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet"> 
-
 </head>
 
 <body>
   <div id="cesiumContainer"></div>
   
   <div id="mobileMenu" class="control-panel">
-  <h3>Mobile</h3>
-  <div class="control-group">
-    <label for="modelSelect">Modèle 3D :</label>
-    <!-- ✅ NOUVEAU SELECT ⚠️ -->
-    <select id="modelSelect" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #333; color: white; font-size: 12px;">
-      <option value="">-- Sélectionner un modèle --</option>
-      <!-- Les options seront ajoutées dynamiquement -->
-    </select>
-    <div id="modelName" class="model-name"></div>
-	
-    <div class="controls-row" style="margin-top: 8px;">
+    <h3>Mobile</h3>
+    <div class="control-group">
+      <label for="modelSelect">Modèle 3D :</label>
+      <select id="modelSelect" style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #333; color: white; font-size: 12px;">
+        <option value="">-- Sélectionner un modèle --</option>
+      </select>
+      <div id="modelName" class="model-name"></div>
+      
+      <div class="controls-row" style="margin-top: 8px;">
         <div class="rotate-btn-container">
-            <button id="rotateBtn">Tourner</button>
+          <button id="rotateBtn">Tourner</button>
         </div>
         <div class="slider-container">
-            <label>
-                <span>Échelle :</span>
-                <span id="scaleValue">5</span>
-            </label>
-            <input type="range" id="scaleSlider" min="1" max="100" value="5" step="1" />
+          <label>
+            <span>Échelle :</span>
+            <span id="scaleValue">5</span>
+          </label>
+          <input type="range" id="scaleSlider" min="1" max="100" value="5" step="1" />
         </div>
-    </div>  
+      </div>  
 
-	<div class="slider-container" style="margin-top: 10px;">
+      <div class="slider-container" style="margin-top: 10px;">
         <label>
-            <span>Éclairage :</span>
-            <span id="lightValue">1.0</span>
+          <span>Éclairage :</span>
+          <span id="lightValue">1.0</span>
         </label>
         <input type="range" id="lightSlider" min="0" max="2" value="1" step="0.1" />
-    </div>
-    
-    <div class="control-group checkbox-group">
+      </div>
+      
+      <div class="control-group checkbox-group">
         <input type="checkbox" id="orientCheckbox" checked />
         <label for="orientCheckbox" style="margin: 0;">Orienter selon la trajectoire</label>
+      </div>
+      
+      <div style="margin-top: 8px;">
+        <input type="file" id="glbFileInput" accept=".glb" style="display: none;" />
+        <button id="loadCustomModelBtn" class="tooltip-btn" 
+                style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #444; color: white; font-size: 12px; cursor: pointer; position: relative;"
+                title="Chargez un fichier GLB personnalisé (.glb uniquement). Le modèle sera ajouté au sélecteur et appliqué à votre trace."
+                aria-label="Charger un modèle GLB custom">
+          Charger mon modèle (GLB)
+          <div class="tooltip-content" id="customModelTooltip">
+            Chargez un fichier GLB personnalisé (.glb uniquement).<br>
+            Le modèle sera ajouté au sélecteur et appliqué à votre trace.<br>
+            <small>Format supporté : GLB (binaire glTF)</small>
+          </div>
+        </button>
+      </div>
     </div>
-	
-	<!-- ✅ BOUTON AVEC TOOLTIP -->
-<div style="margin-top: 8px;">
-  <input type="file" id="glbFileInput" accept=".glb" style="display: none;" />
-  <button id="loadCustomModelBtn" class="tooltip-btn" 
-          style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #444; color: white; font-size: 12px; cursor: pointer; position: relative;"
-          title="Chargez un fichier GLB personnalisé (.glb uniquement). Le modèle sera ajouté au sélecteur et appliqué à votre trace."
-          aria-label="Charger un modèle GLB custom">
-    Charger mon modèle (GLB)
-    <!-- ✅ DIV TOOLTIP CACHÉE (pour version custom) -->
-    <div class="tooltip-content" id="customModelTooltip">
-      Chargez un fichier GLB personnalisé (.glb uniquement).<br>
-      Le modèle sera ajouté au sélecteur et appliqué à votre trace.<br>
-      <small>Format supporté : GLB (binaire glTF)</small>
-    </div>
-  </button>
-</div>
-
   </div>
 
-
-
-  </div> <div id="traceMenu" class="control-panel">
+  <div id="traceMenu" class="control-panel">
     <h3>Trace</h3>
     <div id="loadingSpinner" style="display:none; padding: 6px 10px; background: #333; border-radius: 4px; border: 1px solid #666; font-size: 12px; color: #ffecb3; margin-bottom: 10px;">
       ⏳ Chargement du mobile...
@@ -99,31 +93,28 @@
       <label for="traceCheckbox" style="margin: 0;">Afficher la trace</label>
     </div>
 
-    <!-- ✅ NOUVEAU : Case à cocher pour colorer la trace par altitude -->
     <div class="control-group checkbox-group" style="margin-top: 12px;">
       <input type="checkbox" id="colorByAltitudeCheckbox" />
       <label for="colorByAltitudeCheckbox" style="margin: 0;">Colorer par altitude (relatif à la trace)</label>
     </div>
 
-    <!-- ✅ NOUVEAU : Case à cocher pour colorer la trace par vitesse -->
     <div class="control-group checkbox-group" style="margin-top: 12px;">
       <input type="checkbox" id="colorBySpeedCheckbox" />
       <label for="colorBySpeedCheckbox" style="margin: 0;">Colorer par vitesse (km/h, relatif à la trace)</label>
     </div>
+  </div>
 
- </div> <div id="resetMenu" class="control-panel">
+  <div id="resetMenu" class="control-panel">
     <h3>Actions</h3> 
     <div class="control-group">
       <button id="resetBtn" class="danger" disabled>Réinitialiser la vue</button>
     </div>
+  </div>
 
-
-   
-  </div> <script src="TraceConverter.js"></script>
+  <script src="TraceConverter.js"></script>
   
-   <div id="environmentMenu" class="control-panel">
+  <div id="environmentMenu" class="control-panel">
     <h3>Environnement</h3>
-
     
     <div class="control-group checkbox-group" style="margin-top: 12px;">
       <input type="checkbox" id="skyAtmosphereCheckbox" checked />
@@ -139,13 +130,12 @@
       <input type="checkbox" id="shadowsCheckbox" />
       <label for="shadowsCheckbox" style="margin: 0;">Ombres</label>
     </div>
-<!-- ✅ NOUVEAU : Bouton pour FL115 -->
-<div class="control-group checkbox-group" style="margin-top: 12px;">
-  <input type="checkbox" id="fl115Checkbox" />
-  <label for="fl115Checkbox" class="fl115-label" style="margin: 0;">Grille FL115</label>
 
-</div>
- 
+    <div class="control-group checkbox-group" style="margin-top: 12px;">
+      <input type="checkbox" id="fl115Checkbox" />
+      <label for="fl115Checkbox" class="fl115-label" style="margin: 0;">Grille FL115</label>
+    </div>
+    
     <div class="slider-container" style="margin-top: 10px;">
       <label>
         <span>Luminosité :</span>
@@ -154,44 +144,24 @@
       <input type="range" id="brightnessSlider" min="0" max="2" value="1" step="0.1" />
     </div>
     
-<!-- ✅ NOUVEAU : Bouton pour clé Cesium Ion -->
-<div class="control-group" style="margin-top: 12px;">
-  <input type="password" id="cesiumIonKeyInput" placeholder="Collez votre clé API Cesium Ion ici" style="display: none; width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #333; color: white; font-size: 12px; margin-bottom: 6px;" />
-  <button id="loadCesiumKeyBtn" class="tooltip-btn" 
-          style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #444; color: white; font-size: 12px; cursor: pointer; position: relative;"
-          title="Entrez votre clé API Cesium Ion (gratuite sur cesium.com/ion) pour activer le terrain 3D réaliste (relief, altitudes)."
-          aria-label="Charger une clé Cesium Ion pour le 3D">
-    Charger une clé Cesium pour voir en 3D
-    <!-- ✅ DIV TOOLTIP (réutilise le CSS existant) -->
- 
-  </button>
-</div>
+    <div class="control-group" style="margin-top: 12px;">
+      <input type="password" id="cesiumIonKeyInput" placeholder="Collez votre clé API Cesium Ion ici" style="display: none; width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #333; color: white; font-size: 12px; margin-bottom: 6px;" />
+      <button id="loadCesiumKeyBtn" class="tooltip-btn" 
+              style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #444; color: white; font-size: 12px; cursor: pointer; position: relative;"
+              title="Entrez votre clé API Cesium Ion (gratuite sur cesium.com/ion) pour activer le terrain 3D réaliste (relief, altitudes)."
+              aria-label="Charger une clé Cesium Ion pour le 3D">
+        Charger une clé Cesium pour voir en 3D
+      </button>
+    </div>
 
-<!-- ✅ NOUVEAU : Bouton pour accéder à Cesium -->
-<div class="control-group" style="margin-top: 12px;">
-  <button id="openCesiumBtn" 
-          style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #2196F3; color: white; font-size: 12px; cursor: pointer; font-weight: bold;"
-          title="Ouvrir Cesium dans un nouvel onglet"
-          aria-label="Accéder à Cesium">
-    🌍 Cesium plus d'infos
-  </button>
-</div>
-  </button>
-</div>
-	
-	
-  </div>
- 
-  
-  
-  <div id="globalSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; font-family: sans-serif;">
-    <div style="font-size: 20px; margin-bottom: 20px;">⏳ Chargement en cours...</div>
-    <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
-    <div id="globalSpinnerText" style="margin-top: 20px; font-size: 14px;">Chargement de la trace</div>
+    <div class="control-group" style="margin-top: 12px;">
+      <button id="openCesiumBtn" 
+              style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #666; background: #2196F3; color: white; font-size: 12px; cursor: pointer; font-weight: bold;"
+              title="Ouvrir Cesium dans un nouvel onglet"
+              aria-label="Accéder à Cesium">
+        🌍 Cesium plus d'infos
+      </button>
+    </div>
   </div>
   
- <div id="status">⏳ Chargement...</div>    
- <script src="./script.js"></script>
-</body>
-</html>
-
+  <div id="globalSpinner" style="display: none; position: fixed; t
