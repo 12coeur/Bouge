@@ -1240,3 +1240,4 @@ initModelSelector();
 }
 // Écouteur global DOMContentLoaded (une seule fois, pour tout init)
 window.addEventListener('DOMContentLoaded', initApp);
+
