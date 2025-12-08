@@ -1,46 +1,41 @@
-console.log("🆕🆕🆕 VERSION 2.5 - script.js CHARGÉE 🆕🆕🆕");
+console.log("🆕🆕🆕 VERSION 2.5 RESPONSIVE - script.js CHARGÉE 🆕🆕🆕");
 console.log("✅ Décalage altitude pas=1m");
 console.log("✅ Recentrage caméra amélioré");
 console.log("✅ Reset avec recentrage globe");
 console.log("✅ Contrôle éclairage modèle 3D");
 console.log("✅ Coloriage par altitude ET vitesse");
 console.log("✅ FL115 filigrane + contour polyline blanc + label au bord NE");
+console.log("✅ RESPONSIVE MOBILE - Touch events optimisés");
 
 // =======================================================
 // GESTION DE LA DISPARITION DES MENUS APRÈS INACTIVITITÉ
 // =======================================================
-// Récupération des éléments de menu
 const mobileMenu = document.getElementById('mobileMenu');
 const traceMenu = document.getElementById('traceMenu');
 const resetMenu = document.getElementById('resetMenu');
-const environmentMenu = document.getElementById('environmentMenu');// s
+const environmentMenu = document.getElementById('environmentMenu');
 const menus = [mobileMenu, traceMenu, resetMenu, environmentMenu];
 const INACTIVITY_DELAY = 5000; // 5 secondes
 let inactivityTimer;
+
 // Liste des modèles disponibles dans le dossier models
 const AVAILABLE_MODELS = [
    'PIC.glb',
    'PP Niviuk Zéno Bleue Mauve.glb',
    'PP Gin Boom orange.glb',
    'PP Ozone Zénno2 jaune.glb',
-   
    'Helicoptere.glb',
    'CampingCar.glb',
    'Chien.glb',
    'Vélo.glb',
    'Bateau.glb',
    'Randonneur.glb',
-    'Avion.glb',
-    'Cheval.glb',
-    'Marcheur.glb',
-	'','', '', '',
-  
-  
-  // Ajoutez ici tous vos fichiers GLB
+   'Avion.glb',
+   'Cheval.glb',
+   'Marcheur.glb',
+   '','', '', ''
 ];
-/**
- * Charge la liste des modèles disponibles dans le select
- */
+
 function initModelSelector() {
   const modelSelect = document.getElementById('modelSelect');
   if (!modelSelect) {
@@ -48,48 +43,53 @@ function initModelSelector() {
     return;
   }
   console.log('🔍 modelSelect trouvé:', modelSelect);
-  // Vider les options existantes (sauf la première)
+  
   while (modelSelect.children.length > 1) {
     modelSelect.removeChild(modelSelect.lastChild);
   }
+  
   console.log('📦 Modèles disponibles:', AVAILABLE_MODELS);
-  // Ajouter les modèles disponibles
+  
   AVAILABLE_MODELS.forEach(modelName => {
-    if (modelName.trim()) { // Ignorer les chaînes vides
+    if (modelName.trim()) {
       const option = document.createElement('option');
       option.value = modelName;
       option.textContent = modelName;
       modelSelect.appendChild(option);
     }
   });
-  console.log(`📁 ${AVAILABLE_MODELS.filter(m => m.trim()).length} modèles chargés dans le sélecteur`);
+  
+  console.log(`🔍 ${AVAILABLE_MODELS.filter(m => m.trim()).length} modèles chargés dans le sélecteur`);
   console.log('🔢 Options dans le select:', modelSelect.children.length);
 }
+
 // ====================================
 // GESTION AMÉLIORÉE DE LA CLÉ CESIUM ION
 // ====================================
 const loadCesiumKeyBtn = document.getElementById('loadCesiumKeyBtn');
 const cesiumIonKeyInput = document.getElementById('cesiumIonKeyInput');
 const openCesiumBtn = document.getElementById('openCesiumBtn');
-// ✅ INFO BULLE VIA showStatus (remplacement du tooltip)
+
 if (loadCesiumKeyBtn) {
   loadCesiumKeyBtn.addEventListener('mouseenter', () => {
     showStatus(
-      'Collez votre clé API Cesium Ion pour activer le relief 3D. Elle n’est jamais envoyée sur Internet.',
+      'Collez votre clé API Cesium Ion pour activer le relief 3D. Elle n'est jamais envoyée sur Internet.',
       'info',
       4000
     );
   });
   loadCesiumKeyBtn.addEventListener('mouseleave', () => {
-    showStatus('', 'info', 10); // Efface rapidement
+    showStatus('', 'info', 10);
   });
 }
+
 let isTerrainActive = false;
-// Vérifier si une clé est déjà sauvegardée
+
 const savedKey = localStorage.getItem('cesiumIonKey');
 if (savedKey) {
   autoLoadCesiumKey(savedKey);
 }
+
 if (openCesiumBtn) {
   openCesiumBtn.addEventListener('click', () => {
     window.open('https://cesium.com/ion/signup', '_blank');
@@ -100,9 +100,8 @@ if (openCesiumBtn) {
     );
   });
 }
-// Gestion du bouton principal
+
 loadCesiumKeyBtn.addEventListener('click', async () => {
-  // Si le terrain est déjà actif, proposer de le désactiver
   if (isTerrainActive) {
     if (confirm('Voulez-vous désactiver le terrain 3D et effacer la clé sauvegardée ?')) {
       disableTerrain();
@@ -110,7 +109,6 @@ loadCesiumKeyBtn.addEventListener('click', async () => {
     return;
   }
  
-  // Afficher/masquer le champ de saisie
   if (cesiumIonKeyInput.style.display === 'none' || cesiumIonKeyInput.style.display === '') {
     cesiumIonKeyInput.style.display = 'block';
     cesiumIonKeyInput.focus();
@@ -123,7 +121,6 @@ loadCesiumKeyBtn.addEventListener('click', async () => {
       return;
     }
    
-    // Valider le format (clés Ion commencent par eyJ)
     if (!apiKey.startsWith('eyJ')) {
       alert('⚠️ Format de clé invalide.\n\nLes clés Cesium Ion commencent par "eyJ".\n\nObtenez-en une gratuitement sur:\n→ https://cesium.com/ion/signup');
       return;
@@ -132,36 +129,26 @@ loadCesiumKeyBtn.addEventListener('click', async () => {
     await loadTerrainWithKey(apiKey);
   }
 });
-// Fonction pour charger le terrain avec une clé
+
 async function loadTerrainWithKey(apiKey) {
-  // Afficher un spinner
   loadCesiumKeyBtn.textContent = '⏳ Validation de la clé...';
   loadCesiumKeyBtn.disabled = true;
  
   try {
-    // Appliquer la clé Cesium Ion
     Cesium.Ion.defaultAccessToken = apiKey;
-   
-    // Tenter d'activer le terrain 3D
     viewer.terrainProvider = await Cesium.createWorldTerrainAsync();
-   
-    // Sauvegarder la clé
     localStorage.setItem('cesiumIonKey', apiKey);
    
-    // Mise à jour de l'interface
     isTerrainActive = true;
     loadCesiumKeyBtn.textContent = '✅ Terrain 3D activé';
     loadCesiumKeyBtn.style.background = '#4CAF50';
     cesiumIonKeyInput.style.display = 'none';
     cesiumIonKeyInput.value = '';
    
-  // alert('✅ Terrain 3D activé avec succès !\n\n• Relief et altitudes réalistes\n• Clé sauvegardée pour les prochaines sessions\n\nCliquez à nouveau sur le bouton pour désactiver.');
-  showStatus('✅ Terrain 3D activé avec succès', 'success', 4000);
+    showStatus('✅ Terrain 3D activé avec succès', 'success', 4000);
    
   } catch (error) {
     console.error('Erreur lors du chargement du terrain 3D:', error);
-   
-    // Revenir au terrain plat par défaut
     viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
    
     alert('❌ Clé Cesium Ion invalide ou expirée.\n\n' +
@@ -180,7 +167,7 @@ async function loadTerrainWithKey(apiKey) {
     loadCesiumKeyBtn.disabled = false;
   }
 }
-// Fonction pour charger automatiquement une clé sauvegardée
+
 async function autoLoadCesiumKey(apiKey) {
   try {
     Cesium.Ion.defaultAccessToken = apiKey;
@@ -191,18 +178,18 @@ async function autoLoadCesiumKey(apiKey) {
     loadCesiumKeyBtn.style.background = '#4CAF50';
    
     console.log('✅ Terrain 3D chargé automatiquement depuis la clé sauvegardée');
-   showStatus(
-  '✅ Clé Cesium détectée — Terrain 3D activé automatiquement.',
-  'success',
-  5000
-);
+    showStatus(
+      '✅ Clé Cesium détectée – Terrain 3D activé automatiquement.',
+      'success',
+      5000
+    );
   } catch (error) {
     console.warn('La clé sauvegardée n\'est plus valide:', error);
     localStorage.removeItem('cesiumIonKey');
     viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
   }
 }
-// Fonction pour désactiver le terrain 3D
+
 function disableTerrain() {
   viewer.terrainProvider = new Cesium.EllipsoidTerrainProvider();
   localStorage.removeItem('cesiumIonKey');
@@ -211,14 +198,11 @@ function disableTerrain() {
   loadCesiumKeyBtn.textContent = 'Charger une clé Cesium pour voir en 3D';
   loadCesiumKeyBtn.style.background = '#444';
  
-showStatus('ℹ️ Terrain 3D désactivé – Clé effacée', 'info', 4000);
+  showStatus('ℹ️ Terrain 3D désactivé – Clé effacée', 'info', 4000);
 }
-/**
- * Charge un modèle depuis le dossier models
- */
+
 function loadModelFromModelsFolder(modelFileName) {
   if (!modelFileName) {
-    // Si pas de modèle sélectionné
     if (currentModelUri) {
       URL.revokeObjectURL(currentModelUri);
       currentModelUri = null;
@@ -227,12 +211,10 @@ function loadModelFromModelsFolder(modelFileName) {
     showStatus('Modèle retiré - disque rouge par défaut', 'info', 2000);
     return;
   }
-  // Construire l'URL relative vers le modèle
+  
   const modelUrl = `models/${modelFileName}`;
- 
   console.log(`🚀 Chargement du modèle: ${modelUrl}`);
  
-  // Libérer l'ancienne URL si elle existe
   if (currentModelUri) {
     URL.revokeObjectURL(currentModelUri);
   }
@@ -241,45 +223,35 @@ function loadModelFromModelsFolder(modelFileName) {
   document.getElementById('modelName').textContent = modelFileName;
   document.getElementById('modelName').style.display = 'block';
   showStatus(`Modèle ${modelFileName} sélectionné`, 'info', 2000);
-  // Recharger la trace si elle existe
+  
   if (currentTraceData) {
     displayTrace(currentTraceData);
   }
 }
-/**
- * Fonction pour colapser les menus
- */
+
 function collapseMenus() {
     mobileMenu.classList.add('collapsed');
     traceMenu.classList.add('collapsed');
     resetMenu.classList.add('collapsed');
     environmentMenu.classList.add('collapsed');
 }
-/**
- * Fonction pour étendre les menus (les afficher)
- */
+
 function expandMenus() {
     menus.forEach(menu => menu.classList.remove('collapsed'));
     resetTimer();
 }
-/**
- * Fonction pour réinitialiser et redémarrer le minuteur d'inactivité
- */
+
 function resetTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(collapseMenus, INACTIVITY_DELAY);
 }
-// ---------------------------------------------
-// 1. Gérer l'activité (pour réinitialiser le timer)
-// ---------------------------------------------
-// Événements d'activité sur le document entier
+
+// 🎯 AMÉLIORATION RESPONSIVE : Gestion tactile optimisée
 document.addEventListener('mousemove', resetTimer);
 document.addEventListener('keypress', resetTimer);
 document.addEventListener('click', resetTimer);
-// ---------------------------------------------
-// 2. Gérer le survol (pour ré-afficher le menu via la poignée)
-// ---------------------------------------------
-// Fonction helper pour gérer le z-index hovered
+document.addEventListener('touchstart', resetTimer, { passive: true }); // ✅ Ajout touch
+
 function setMenuHovered(menu, isHovered) {
   if (isHovered) {
     menu.classList.add('hovered');
@@ -287,50 +259,49 @@ function setMenuHovered(menu, isHovered) {
     menu.classList.remove('hovered');
   }
 }
+
 menus.forEach(menu => {
   // Hover desktop
   menu.addEventListener('mouseenter', (e) => {
     expandMenus();
-    setMenuHovered(menu, true); // Boost z-index
+    setMenuHovered(menu, true);
   });
  
   menu.addEventListener('mouseleave', (e) => {
     resetTimer();
-    setMenuHovered(menu, false); // Reset z-index
+    setMenuHovered(menu, false);
   });
  
-  // Touch mobile (prioritaire, évite double-trigger)
+  // 🎯 Touch mobile optimisé
   menu.addEventListener('touchstart', (e) => {
-    e.preventDefault(); // Évite scroll indésirable
+    e.preventDefault();
     expandMenus();
     setMenuHovered(menu, true);
   }, { passive: false });
  
+  // ✅ CORRECTION : passive: true pour touchend (meilleure performance)
   menu.addEventListener('touchend', (e) => {
     setMenuHovered(menu, false);
-    resetTimer(); // Remet le timer après interaction
-  }, { passive: false });
+    resetTimer();
+  }, { passive: true });
 });
-// Assurez-vous que les menus sont initialement visibles et lancez le timer
+
 expandMenus();
-let fl115Entity = null; // Entité pour le filigrane FL115
-let fl115Label = null; // Label pour "FL115"
+
+let fl115Entity = null;
+let fl115Label = null;
 let viewer;
 let currentPlane = null;
 let currentTrace = null;
-let traceSegments = []; // Tableau pour les segments de trace colorés (altitude OU vitesse)
-
+let traceSegments = [];
 let currentTraceData = null;
 let selectedFile = null;
 let currentModelUri = null;
 let zRotation = 0;
 let isModelLoading = false;
-let altitudeOffset = 0; // Variable pour le décalage d'altitude
+let altitudeOffset = 0;
 
-
-// ---------------------- UI UTILITAIRES ----------------------
-//
-	 function clearFL115() {
+function clearFL115() {
   if (fl115Entity) {
     if (fl115Entity.outlinePolyline) {
       viewer.entities.remove(fl115Entity.outlinePolyline);
@@ -353,13 +324,13 @@ function chargerFichierIGC(fichier) {
         try {
             const trace = TraceConverter.parse(e.target.result, 'igc');
             console.log('✅ Trace IGC chargée:', trace);
-            // Utilisez vos points avec timestamp valide !
         } catch (error) {
             console.error('❌ Erreur conversion:', error);
         }
     };
     reader.readAsText(fichier);
 }
+
 function showStatus(message, type = 'info', autoHideMs = (type === 'success' ? 5000 : 0)) {
   const status = document.getElementById('status');
   if (!status) return;
@@ -370,14 +341,17 @@ function showStatus(message, type = 'info', autoHideMs = (type === 'success' ? 5
     setTimeout(() => { status.style.display = 'none'; }, autoHideMs);
   }
 }
+
 function showSpinner(show = true) {
   const spinner = document.getElementById('loadingSpinner');
   if (spinner) spinner.style.display = show ? 'block' : 'none';
 }
+
 function lockUI(lock = true) {
   const controls = document.querySelectorAll('#controls input, #controls button');
   controls.forEach(el => el.disabled = lock);
 }
+
 function showGlobalSpinner(show = true, text = "Chargement en cours...") {
   const spinner = document.getElementById('globalSpinner');
   const spinnerText = document.getElementById('globalSpinnerText');
@@ -391,6 +365,7 @@ function showGlobalSpinner(show = true, text = "Chargement en cours...") {
     }
   }
 }
+
 // ---------------------- CHARGEMENT TRACE (TOUS FORMATS) ----------------------
 async function loadTrace(file) {
   console.log('🚨🚨🚨 loadTrace APPELÉE 🚨🚨🚨');
@@ -399,10 +374,10 @@ async function loadTrace(file) {
   showStatus('Chargement de la trace...', 'info');
   showGlobalSpinner(true, `Chargement de ${file.name}...`);
  
-  // Timeout de sécurité
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => reject(new Error('Timeout: Chargement trop long (>30s)')), 30000);
   });
+  
   try {
     const fileContent = await Promise.race([file.text(), timeoutPromise]);
     const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -412,14 +387,15 @@ async function loadTrace(file) {
     console.log('Extension:', fileExtension);
     console.log('Taille fichier:', fileContent.length, 'caractères');
     console.log('=== FIN DEBUG ===');
-    // Mettre à jour le texte du spinner
+    
     showGlobalSpinner(true, `Parsing ${fileExtension.toUpperCase()}...`);
-    // TEST DIRECT - Appel simple à TraceConverter
+    
     console.log('🎯 Appel à TraceConverter.parse...');
     const traceData = TraceConverter.parse(fileContent, fileExtension);
     console.log('✅ TraceConverter a réussi');
     console.log('Points:', traceData.points.length);
     console.log('Format:', traceData.format);
+    
     showGlobalSpinner(true, `Affichage de ${traceData.points.length} points...`);
    
     return traceData;
@@ -429,14 +405,12 @@ async function loadTrace(file) {
     showStatus(`Erreur : ${error.message}`, 'error');
     throw error;
   } finally {
-    // S'assurer que le spinner est caché même en cas d'erreur
     setTimeout(() => showGlobalSpinner(false), 100);
   }
 }
+
 // ---------------------- AFFICHAGE CESIUM ----------------------
-// Gestion du menu Environnement
 function initEnvironmentMenu() {
-  // Atmosphère et ciel
   const skyAtmosphereCheckbox = document.getElementById('skyAtmosphereCheckbox');
   if (skyAtmosphereCheckbox) {
     skyAtmosphereCheckbox.addEventListener('change', function() {
@@ -444,21 +418,21 @@ function initEnvironmentMenu() {
       viewer.scene.skyBox.show = this.checked;
     });
   }
-  // Éclairage solaire
+  
   const sunLightCheckbox = document.getElementById('sunLightCheckbox');
   if (sunLightCheckbox) {
     sunLightCheckbox.addEventListener('change', function() {
       viewer.scene.globe.enableLighting = this.checked;
     });
   }
-  // Ombres
+  
   const shadowsCheckbox = document.getElementById('shadowsCheckbox');
   if (shadowsCheckbox) {
     shadowsCheckbox.addEventListener('change', function() {
       viewer.shadows = this.checked;
     });
   }
-  // Luminosité
+  
   const brightnessSlider = document.getElementById('brightnessSlider');
   const brightnessValue = document.getElementById('brightnessValue');
   if (brightnessSlider && brightnessValue) {
@@ -469,16 +443,15 @@ function initEnvironmentMenu() {
     });
   }
 }
+
 function displayTrace(traceData) {
   const startTime = Date.now();
   console.log('🔄 Début displayTrace à', new Date().toISOString());
  
   showSpinner(true);
  
-  // Annuler les chargements précédents
   isModelLoading = false;
  
-  // Nettoyer les entités existantes
   if (currentPlane) {
     viewer.entities.remove(currentPlane);
     currentPlane = null;
@@ -491,42 +464,42 @@ function displayTrace(traceData) {
     traceSegments.forEach(segment => viewer.entities.remove(segment));
     traceSegments = [];
   }
+  
   const polylinePositions = [];
   const positions = [];
-  // Extraire les points valides AVEC DÉCALAGE D'ALTITUDE
+  
   traceData.points.forEach(point => {
     if (!isNaN(point.lat) && !isNaN(point.lon)) {
-      // Appliquer le décalage d'altitude
       const elevation = (point.elevation || 0) + altitudeOffset;
       const cartesian = Cesium.Cartesian3.fromDegrees(point.lon, point.lat, elevation);
       polylinePositions.push(cartesian);
      
-      // Gestion du timestamp pour l'animation
       if (point.timestamp && !isNaN(point.timestamp.getTime())) {
         const julianTime = Cesium.JulianDate.fromDate(point.timestamp);
         positions.push({ time: julianTime, position: cartesian });
       } else {
-        // Si pas de timestamp, utiliser une heure par défaut pour permettre l'animation
         const defaultTime = Cesium.JulianDate.fromDate(new Date());
         positions.push({ time: defaultTime, position: cartesian });
       }
     }
   });
+  
   if (polylinePositions.length < 2) {
     console.warn('❌ Pas assez de points valides:', polylinePositions.length);
     showStatus('Pas assez de points valides dans la trace', 'error');
     showSpinner(false);
     return;
   }
+  
   console.log(`✅ ${polylinePositions.length} points valides, ${positions.length} positions temporelles`);
-  console.log(`📏 Décalage altitude appliqué: ${altitudeOffset}m`);
-  // ✅ Coloriage : Priorité à la vitesse si cochée, sinon altitude, sinon unie
+  console.log(`🔍 Décalage altitude appliqué: ${altitudeOffset}m`);
+  
   const showTrace = document.getElementById('traceCheckbox').checked;
   const colorBySpeed = document.getElementById('colorBySpeedCheckbox')?.checked || false;
   const colorByAlt = !colorBySpeed && (document.getElementById('colorByAltitudeCheckbox')?.checked || false);
+  
   if (showTrace) {
     if (!colorBySpeed && !colorByAlt) {
-      // Trace unie bleue
       currentTrace = viewer.entities.add({
         polyline: {
           positions: polylinePositions,
@@ -537,30 +510,33 @@ function displayTrace(traceData) {
       });
       console.log('📈 Trace unie bleue affichée');
     } else if (colorBySpeed) {
-      // ✅ NOUVEAU : Coloriage par vitesse
       let minSpeed = Infinity;
       let maxSpeed = -Infinity;
       let hasValidTimestamps = false;
-      const speeds = []; // Pour calcul des vitesses par segment
+      const speeds = [];
+      
       for (let i = 0; i < positions.length - 1; i++) {
         const dist = Cesium.Cartesian3.distance(positions[i].position, positions[i + 1].position);
         let timeDelta = Cesium.JulianDate.secondsDifference(positions[i + 1].time, positions[i].time);
+        
         if (timeDelta <= 0) {
-          // Fallback : delta temps uniforme si timestamps manquants/invalides
           timeDelta = (positions[positions.length - 1].time.secondsOfDay - positions[0].time.secondsOfDay) / (positions.length - 1);
           console.warn('⚠️ Timestamps invalides pour vitesse – fallback delta uniforme');
         } else {
           hasValidTimestamps = true;
         }
-        const speedMs = dist / timeDelta; // m/s
-        const speedKmh = (speedMs * 3.6).toFixed(2); // km/h
+        
+        const speedMs = dist / timeDelta;
+        const speedKmh = (speedMs * 3.6).toFixed(2);
         speeds.push({ speed: speedMs, kmh: parseFloat(speedKmh) });
+        
         if (speedMs < minSpeed) minSpeed = speedMs;
         if (speedMs > maxSpeed) maxSpeed = speedMs;
       }
+      
       console.log(`🚀 Coloriage par vitesse: min=${minSpeed.toFixed(1)} m/s (${(minSpeed*3.6).toFixed(0)} km/h), max=${maxSpeed.toFixed(1)} m/s (${(maxSpeed*3.6).toFixed(0)} km/h), timestamps valides: ${hasValidTimestamps}`);
+      
       if (maxSpeed === minSpeed || speeds.length === 0) {
-        // Vitesses identiques ou pas de segments : fallback bleu
         currentTrace = viewer.entities.add({
           polyline: {
             positions: polylinePositions,
@@ -571,7 +547,6 @@ function displayTrace(traceData) {
         });
         console.log('📈 Vitesses égales : trace bleue unie');
       } else {
-        // Créer des segments colorés (vert lent -> rouge rapide)
         speeds.forEach((speedData, i) => {
           const normalized = (speedData.speed - minSpeed) / (maxSpeed - minSpeed);
           const color = Cesium.Color.lerp(Cesium.Color.GREEN, Cesium.Color.RED, normalized, new Cesium.Color());
@@ -588,15 +563,17 @@ function displayTrace(traceData) {
         console.log(`🚀 ${traceSegments.length} segments colorés par vitesse créés`);
       }
     } else if (colorByAlt) {
-      // Ancien : Coloriage par altitude (inchangé)
       let minAlt = Infinity;
       let maxAlt = -Infinity;
+      
       traceData.points.forEach(point => {
         const alt = (point.elevation || 0) + altitudeOffset;
         if (alt < minAlt) minAlt = alt;
         if (alt > maxAlt) maxAlt = alt;
       });
+      
       console.log(`🌈 Coloriage par altitude: min=${minAlt.toFixed(0)}m, max=${maxAlt.toFixed(0)}m`);
+      
       if (maxAlt === minAlt) {
         currentTrace = viewer.entities.add({
           polyline: {
@@ -614,6 +591,7 @@ function displayTrace(traceData) {
           const avgAlt = (alt1 + alt2) / 2;
           const normalized = (avgAlt - minAlt) / (maxAlt - minAlt);
           const color = Cesium.Color.lerp(Cesium.Color.BLUE, Cesium.Color.RED, normalized, new Cesium.Color());
+          
           const segment = viewer.entities.add({
             polyline: {
               positions: [polylinePositions[i], polylinePositions[i + 1]],
@@ -628,10 +606,11 @@ function displayTrace(traceData) {
       }
     }
   }
-  // Création de l'entité mobile (avion/modèle) - INCHANGÉ
+  
   if (positions.length > 0) {
     const positionProperty = new Cesium.SampledPositionProperty();
     positions.forEach(({ time, position }) => positionProperty.addSample(time, position));
+    
     let orientationProperty;
     if (document.getElementById('orientCheckbox').checked && positions.length > 1) {
       orientationProperty = new Cesium.VelocityOrientationProperty(positionProperty);
@@ -644,7 +623,7 @@ function displayTrace(traceData) {
       orientationProperty = new Cesium.ConstantProperty(fixedOrientation);
       console.log('🧭 Orientation fixe');
     }
-    // Application de la rotation Z si nécessaire
+    
     if (zRotation !== 0) {
       const original = orientationProperty;
       orientationProperty = new Cesium.CallbackProperty((time, result) => {
@@ -654,9 +633,10 @@ function displayTrace(traceData) {
       }, false);
       console.log('🔄 Rotation Z appliquée:', zRotation + '°');
     }
+    
     const scaleValue = parseFloat(document.getElementById('scaleSlider').value);
     const lightValue = parseFloat(document.getElementById('lightSlider').value);
-    // Entité de base (disque rouge) - visible immédiatement
+    
     currentPlane = viewer.entities.add({
       position: positionProperty,
       orientation: orientationProperty,
@@ -669,14 +649,16 @@ function displayTrace(traceData) {
         outlineWidth: 2
       }
     });
+    
     console.log('🔴 Disque de base créé');
-    // Chargement du modèle 3D si sélectionné
+    
     if (currentModelUri && !isModelLoading) {
       isModelLoading = true;
       console.log('🚀 Début chargement modèle 3D');
       showStatus('Chargement du modèle 3D...', 'info');
       lockUI(true);
       showGlobalSpinner(true, "Chargement du modèle 3D...");
+      
       const tempEntity = viewer.entities.add({
         position: positions[0].position,
         model: {
@@ -687,11 +669,12 @@ function displayTrace(traceData) {
         },
         show: false
       });
-      // Timeout de sécurité
+      
       let modelLoadTimeout = setTimeout(() => {
         console.warn('⏰ Timeout chargement modèle après 15s');
         onError('Timeout chargement modèle');
       }, 15000);
+      
       const onReady = () => {
         console.log('✅ Modèle 3D chargé avec succès');
         clearTimeout(modelLoadTimeout);
@@ -714,9 +697,9 @@ function displayTrace(traceData) {
         lockUI(false);
         showGlobalSpinner(false);
        
-        // Recentrage APRÈS chargement du modèle
         setTimeout(() => recenterCamera(traceData), 500);
       };
+      
       const onError = (err) => {
         console.error('❌ Erreur chargement modèle:', err);
         clearTimeout(modelLoadTimeout);
@@ -726,9 +709,9 @@ function displayTrace(traceData) {
         lockUI(false);
         showGlobalSpinner(false);
        
-        // Recentrage même en cas d'erreur
         setTimeout(() => recenterCamera(traceData), 500);
       };
+      
       try {
         const rp = tempEntity.model.readyPromise;
         if (rp && typeof rp.then === 'function') {
@@ -738,7 +721,7 @@ function displayTrace(traceData) {
           setTimeout(onReady, 1000);
         }
       } catch (error) {
-        console.error('💥 Exception lors du chargement modèle:', error);
+        console.error('💥Exception lors du chargement modèle:', error);
         setTimeout(onReady, 1000);
       }
     } else {
