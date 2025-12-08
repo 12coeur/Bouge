@@ -7,6 +7,7 @@ html, body, #cesiumContainer {
   touch-action: pan-x pan-y;
 }
 
+
 /* MENU ENVIRONNEMENT (MILIEU GAUCHE, FOND JAUNE) */
 #environmentMenu {
   position: absolute;
@@ -584,3 +585,4 @@ body.no-hovered-menu .control-panel {
     top: 10px;
   }
 }
+
