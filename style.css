@@ -3,6 +3,8 @@ html, body, #cesiumContainer {
   height: 100%; 
   margin: 0; 
   padding: 0; 
+  /* Empêcher le zoom accidentel sur mobile */
+  touch-action: pan-x pan-y;
 }
 
 /* MENU ENVIRONNEMENT (MILIEU GAUCHE, FOND JAUNE) */
@@ -11,11 +13,8 @@ html, body, #cesiumContainer {
   top: 50%;
   left: 10px;
   transform: translateY(-50%);
-  background: rgba(255, 193, 7, 0.5); /* Jaune semi-transparent */
-  
-  /* AJOUT DE LA BORDURE */
+  background: rgba(255, 193, 7, 0.5);
   border: 1px solid rgba(255, 255, 255, 2);
-  
   padding: 42px;
   border-radius: 22px;
   color: white;
@@ -25,21 +24,17 @@ html, body, #cesiumContainer {
   transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
 }
 
-/* Style pour la "poignée" du menu Environnement (à gauche) */
 #environmentMenu.collapsed {
-  /* Déplace le menu à gauche de sa propre largeur moins 25px (la poignée) */
   transform: translate(calc(-100% + 25px), -50%);
 }
+
 /* MENU TRACE (HAUT DROITE, FOND BLEU) */
 #traceMenu {
   position: absolute;
   top: 100px;
   right: 10px;
   background: rgba(39, 53, 245, 0.5); 
-  
-  /* AJOUT DE LA BORDURE */
   border: 1px solid rgba(255, 255, 255, 2);
-  
   padding: 42px;
   border-radius: 22px;
   color: white;
@@ -55,10 +50,7 @@ html, body, #cesiumContainer {
   top: 10px;
   left: 10px; 
   background: rgba(76, 175, 80, 0.5); 
-  
-  /* AJOUT DE LA BORDURE */
-  border: 1px solid rgba(255, 255, 255, 2); /* Bordure blanche semi-transparente */
-  
+  border: 1px solid rgba(255, 255, 255, 2);
   padding: 42px;
   border-radius: 22px;
   color: white;
@@ -73,13 +65,10 @@ html, body, #cesiumContainer {
 /* MENU ACTIONS/RESET (BAS DROITE) */
 #resetMenu {
   position: absolute;
-  bottom: 30px; /* because menu Césium */
+  bottom: 30px;
   right: 10px;
   background: rgba(255, 26, 0, 0.5);
-  
-  /* AJOUT DE LA BORDURE */
   border: 1px solid rgba(255, 255, 255,2);
-  
   padding: 42px;
   border-radius: 22px;
   color: white;
@@ -90,15 +79,13 @@ html, body, #cesiumContainer {
   transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
 }
 
-/* Cache le titre "Actions" dans le menu Reset */
 #resetMenu h3 {
-    display: none;
+  display: none;
 }
 
 /* --- RÈGLES GÉNÉRALES --- */
 
-
-.control-panel h3 { /* Appliqué à #traceMenu h3 et #mobileMenu h3 */
+.control-panel h3 {
   margin: 0 0 10px 0;
   font-size: 16px;
 }
@@ -132,6 +119,10 @@ button {
   cursor: pointer;
   font-size: 13px;
   margin-right: 5px;
+  /* Amélioration tactile */
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
 }
 
 button:hover {
@@ -173,6 +164,7 @@ button.danger:hover {
   background: rgba(76, 175, 80, 0.3);
   border: 1px solid #4CAF50;
 }
+
 #status {
   position: fixed;
   top: 50%;
@@ -193,16 +185,24 @@ button.danger:hover {
 
 input[type="range"] {
   width: 100%;
+  /* Amélioration tactile pour les sliders */
+  min-height: 44px;
+  touch-action: none;
 }
 
 .checkbox-group {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Amélioration tactile */
+  min-height: 44px;
 }
 
 .checkbox-group input[type="checkbox"] {
   width: auto;
+  /* Agrandir les checkboxes sur mobile */
+  min-width: 20px;
+  min-height: 20px;
 }
 
 .model-name {
@@ -281,23 +281,18 @@ input[type="range"] {
 }
 
 /* ************************************************* */
-/* NOUVELLES RÈGLES POUR LE MODE DISSIMULÉ */
+/* RÈGLES POUR LE MODE DISSIMULÉ */
 /* ************************************************* */
 
-/* Style pour la "poignée" du menu Mobile (à gauche) */
 #mobileMenu.collapsed {
-  /* Déplace le menu à gauche de sa propre largeur moins 20px (la poignée) */
   transform: translateX(calc(-100% + 25px));
 }
 
-/* Style pour la "poignée" des menus de droite (Trace et Actions) */
 #traceMenu.collapsed,
 #resetMenu.collapsed {
-  /* Déplace le menu à droite de sa propre largeur moins 20px (la poignée) */
   transform: translateX(calc(100% - 25px));
 }
 
-/* Vous pouvez augmenter la largeur de la poignée en changeant le '20px' ci-dessus. */
 /* ✅ TOOLTIP CUSTOM POUR BOUTON CHARGEMENT MODÈLE */
 .tooltip-btn {
   position: relative;
@@ -313,7 +308,7 @@ input[type="range"] {
   padding: 8px 12px;
   position: absolute;
   z-index: 1000;
-  bottom: 100%; /* Apparition au-dessus du bouton */
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
@@ -323,13 +318,14 @@ input[type="range"] {
   border: 1px solid #666;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  margin-bottom: 5px; /* Espace sous le bouton */
+  margin-bottom: 5px;
+  pointer-events: none;
 }
 
 .tooltip-content::after {
   content: "";
   position: absolute;
-  top: 100%; /* Flèche pointant vers le bouton */
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
@@ -342,29 +338,8 @@ input[type="range"] {
   opacity: 1;
 }
 
-/* Adaptation mobile : Tooltip plus large si écran petit */
-@media (max-width: 768px) {
-  .tooltip-content {
-    left: 0;
-    right: 0;
-    transform: none;
-    width: auto;
-    max-width: none;
-    bottom: auto;
-    top: 100%; /* Apparition en dessous sur mobile */
-    margin-top: 5px;
-    margin-bottom: 0;
-  }
-  
-  .tooltip-content::after {
-    top: auto;
-    bottom: 100%;
-    border-top-color: transparent;
-    border-bottom-color: #333;
-  }
-}
 .fl115-label {
-  font-size: 22px;              /* plus gros */
+  font-size: 22px;
   font-weight: 700; 
   color: red;
   text-shadow:
@@ -374,39 +349,238 @@ input[type="range"] {
      1px  1px 0 white;
 }
 
-/* ✅ Z-INDEX + FILIGRANES POUR MENUS (anti-chevauchement + visibilité) */
+/* ✅ Z-INDEX + FILIGRANES POUR MENUS */
 .control-panel {
-  z-index: 5; /* Base pour tous les menus */
-  opacity: 1; /* Pleine visibilité par défaut */
-  transition: z-index 0.2s ease, opacity 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease; /* Fluide */
+  z-index: 5;
+  opacity: 1;
+  transition: z-index 0.2s ease, opacity 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
 }
 
 .control-panel.hovered {
-  z-index: 10; /* Priorité sur survol/touch */
-  opacity: 1; /* Plein focus */
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3); /* Glow blanc pour "actif" */
+  z-index: 10;
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
-/* Filigrane pour les menus NON hovered (quand un autre est actif) */
 .control-panel:not(.hovered) {
-  opacity: 0.6; /* Plus léger */
-  filter: blur(1px); /* Effet filigrane subtil (optionnel, retirez si trop fort) */
+  opacity: 0.6;
+  filter: blur(1px);
 }
 
-/* Reset : Si AUCUN menu n'est hovered, tout redevient normal */
 body.no-hovered-menu .control-panel {
   opacity: 1;
   filter: none;
 }
 
-/* Adaptation mobile : Moins de blur pour perf */
-@media (max-width: 768px) {
-  .control-panel:not(.hovered) {
-    filter: blur(0.5px); /* Plus léger sur petit écran */
-  }
-}
-/* Optionnel : Icône pour le bouton 3D */
 #loadCesiumKeyBtn::before {
   content: "🌍 ";
   font-size: 14px;
+}
+
+/* ************************************************* */
+/* 🎯 MEDIA QUERIES RESPONSIVE - MOBILE FIRST      */
+/* ************************************************* */
+
+/* Tablettes et petits écrans (≤ 768px) */
+@media (max-width: 768px) {
+  /* Réduction du padding pour gagner de l'espace */
+  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
+    padding: 20px !important;
+    max-width: calc(100vw - 60px) !important;
+    font-size: 14px;
+  }
+  
+  /* Menus collapsés : poignée plus large sur mobile */
+  #mobileMenu.collapsed {
+    transform: translateX(calc(-100% + 40px));
+  }
+  
+  #traceMenu.collapsed,
+  #resetMenu.collapsed {
+    transform: translateX(calc(100% - 40px));
+  }
+  
+  #environmentMenu.collapsed {
+    transform: translate(calc(-100% + 40px), -50%);
+  }
+  
+  /* Titres plus petits */
+  .control-panel h3 {
+    font-size: 14px;
+  }
+  
+  /* Boutons plus grands pour le tactile */
+  button {
+    font-size: 14px;
+    padding: 10px 12px;
+    min-height: 48px;
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  
+  /* Inputs adaptés */
+  #fileInput, #modelInput, select {
+    font-size: 14px;
+    padding: 10px;
+    min-height: 48px;
+  }
+  
+  /* Sliders plus hauts */
+  input[type="range"] {
+    min-height: 48px;
+  }
+  
+  /* Checkboxes plus grandes */
+  .checkbox-group input[type="checkbox"] {
+    min-width: 24px;
+    min-height: 24px;
+  }
+  
+  .checkbox-group label {
+    font-size: 14px;
+  }
+  
+  /* Status adapté */
+  #status {
+    font-size: 18px;
+    max-width: 90vw;
+  }
+  
+  /* Tooltip mobile : en dessous au lieu d'au-dessus */
+  .tooltip-content {
+    left: 0;
+    right: 0;
+    transform: none;
+    width: auto;
+    max-width: none;
+    bottom: auto;
+    top: 100%;
+    margin-top: 5px;
+    margin-bottom: 0;
+    font-size: 13px;
+  }
+  
+  .tooltip-content::after {
+    top: auto;
+    bottom: 100%;
+    border-top-color: transparent;
+    border-bottom-color: #333;
+  }
+  
+  /* Moins de blur pour les performances */
+  .control-panel:not(.hovered) {
+    filter: blur(0.5px);
+  }
+  
+  /* Controls-row en colonne sur mobile */
+  .controls-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .rotate-btn-container {
+    width: 100%;
+  }
+  
+  .slider-container {
+    width: 100%;
+  }
+}
+
+/* Très petits écrans (≤ 480px) - Smartphones en portrait */
+@media (max-width: 480px) {
+  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
+    padding: 15px !important;
+    max-width: calc(100vw - 40px) !important;
+    border-radius: 12px;
+  }
+  
+  /* Titres encore plus compacts */
+  .control-panel h3 {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  
+  /* Labels plus petits */
+  .control-group label {
+    font-size: 12px;
+  }
+  
+  /* Boutons compacts */
+  button {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+  
+  /* Réduire l'espace entre les groupes */
+  .control-group {
+    margin-bottom: 10px;
+  }
+  
+  /* Status encore plus compact */
+  #status {
+    font-size: 16px;
+    padding: 6px;
+  }
+  
+  /* Menu environnement : repositionner pour éviter le chevauchement */
+  #environmentMenu {
+    top: auto;
+    bottom: 120px;
+    transform: none;
+  }
+  
+  #environmentMenu.collapsed {
+    transform: translateX(calc(-100% + 35px));
+  }
+}
+
+/* Écrans très larges (≥ 1440px) - Confort desktop */
+@media (min-width: 1440px) {
+  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
+    max-width: 400px;
+    padding: 45px;
+  }
+  
+  .control-panel h3 {
+    font-size: 18px;
+  }
+  
+  button {
+    font-size: 14px;
+  }
+}
+
+/* Mode paysage mobile (hauteur faible) */
+@media (max-height: 500px) and (orientation: landscape) {
+  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
+    padding: 10px !important;
+    font-size: 11px;
+  }
+  
+  .control-panel h3 {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  
+  .control-group {
+    margin-bottom: 6px;
+  }
+  
+  button {
+    padding: 6px 8px;
+    min-height: 36px;
+    font-size: 11px;
+  }
+  
+  /* Repositionner les menus pour éviter le débordement */
+  #environmentMenu {
+    top: 10px;
+    transform: none;
+  }
+  
+  #traceMenu {
+    top: 10px;
+  }
 }
