@@ -5,8 +5,7 @@ console.log("✅ Reset avec recentrage globe");
 console.log("✅ Contrôle éclairage modèle 3D");
 console.log("✅ Coloriage par altitude ET vitesse");
 console.log("✅ FL115 filigrane + contour polyline blanc + label au bord NE");
-console.log("✅ RESPONSIVE MOBILE - Touch events optimisés");
-
+console.log("✅ 19h15- Touch events optimisés");
 
 // =======================================================
 // GESTION DE LA DISPARITION DES MENUS APRÈS INACTIVITITÉ
@@ -1241,4 +1240,3 @@ initModelSelector();
 }
 // Écouteur global DOMContentLoaded (une seule fois, pour tout init)
 window.addEventListener('DOMContentLoaded', initApp);
-
