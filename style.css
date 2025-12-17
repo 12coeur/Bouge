@@ -1,96 +1,193 @@
-html, body, #cesiumContainer { 
-  width: 100%; 
-  height: 100%; 
-  margin: 0; 
-  padding: 0; 
-  /* Empêcher le zoom accidentel sur mobile */
+/* style.css - Version nettoyée et optimisée */
+
+/* ===========================================
+   RESET ET BASES
+   =========================================== */
+html, body, #cesiumContainer {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   touch-action: pan-x pan-y;
+    pointer-events: auto;
 }
 
+/* ===========================================
+   VARIABLES CSS
+   =========================================== */
+:root {
+  /* Couleurs */
+  --color-mobile: rgba(76, 175, 80, 0.9);      /* Vert */
+  --color-trace: rgba(39, 53, 245, 0.9);       /* Bleu */
+  --color-reset: rgba(255, 26, 0, 0.9);        /* Rouge */
+  --color-env: rgba(255, 193, 7, 0.9);         /* Jaune */
+  --color-dark: #333;
+  --color-light: white;
+  --color-border: rgba(255, 255, 255, 0.8);    /* Corrigé : 0.8 au lieu de 2 */
+  --color-success: #4CAF50;
+  --color-danger: #f44336;
+  --color-info: #2196F3;
+  
+  /* Dimensions */
+  --menu-radius: 22px;
+  --menu-padding: 42px;
+  --menu-max-width: 350px;
+  --border-width: 1px;
+  
+  /* Transitions */
+  --transition-speed: 0.3s;
+  --transition-easing: ease-in-out;
+  
+  /* Tailles tactile minimum */
+  --touch-min-height: 44px;
+  --touch-min-width: 44px;
+}
 
-/* MENU ENVIRONNEMENT (MILIEU GAUCHE, FOND JAUNE) */
-#environmentMenu {
+/* ===========================================
+   STRUCTURE DES MENUS
+   =========================================== */
+.control-panel {
   position: absolute;
-  top: 50%;
-  left: 10px;
-  transform: translateY(-50%);
-  background: rgba(255, 193, 7, 0.5);
-  border: 1px solid rgba(255, 255, 255, 2);
-  padding: 42px;
+  background: var(--color-dark);
+  border: 1px solid rgba(255,255,255,0.9);
   border-radius: 22px;
+  padding: 42px;
   color: white;
   font-family: sans-serif;
-  z-index: 1000;
+  z-index: 10000;             /* ✅ AU-DESSUS DE CESIUM */
   max-width: 350px;
-  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
+
+  opacity: 0.55;/*   */
+  filter: blur(1.8px);
+
+  transition: transform 0.15s linear,
+              opacity 0.12s linear,
+              filter 0.12s linear;
+
+  pointer-events: auto;      /* ✅ TOUJOURS ACTIF */
 }
 
-#environmentMenu.collapsed {
-  transform: translate(calc(-100% + 25px), -50%);
+/* état ouvert */
+.control-panel.hovered,
+.control-panel.open {
+  z-index: 1000;
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1); 
+  pointer-events: auto;
 }
 
-/* MENU TRACE (HAUT DROITE, FOND BLEU) */
+/* état replié : on translate mais on laisse une petite "tab" visible de 28px */
+.control-panel.collapsed {
+  opacity: 0.45;
+  filter: blur(1.4px);
+}
+
+
+/* accessibilité : éléments désactivés visuellement mais non coupés si ouvert */
+.control-panel[aria-hidden="true"] * {
+  pointer-events: none;
+}
+
+/* focus visible */
+.control-panel :focus {
+  outline: 2px solid rgba(33,150,243,1);
+  outline-offset: 2px;
+}
+
+
+/* Positionnement spécifique */
+#mobileMenu {
+  top: 10px;
+  left: 10px;
+  background: var(--color-mobile);
+}
+
 #traceMenu {
-  position: absolute;
   top: 100px;
   right: 10px;
-  background: rgba(39, 53, 245, 0.5); 
-  border: 1px solid rgba(255, 255, 255, 2);
-  padding: 42px;
-  border-radius: 22px;
-  color: white;
-  font-family: sans-serif;
-  z-index: 1000;
-  max-width: 350px;
-  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
+  background: var(--color-trace);
 }
 
-/* MENU MOBILE (HAUT GAUCHE, FOND VERT) */
-#mobileMenu {
-  position: absolute;
-  top: 10px;
-  left: 10px; 
-  background: rgba(76, 175, 80, 0.5); 
-  border: 1px solid rgba(255, 255, 255, 2);
-  padding: 42px;
-  border-radius: 22px;
-  color: white;
-  font-family: sans-serif;
-  z-index: 1000;
-  max-width: 350px;
-  transform: none; 
-  right: auto;
-  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
-}
-
-/* MENU ACTIONS/RESET (BAS DROITE) */
 #resetMenu {
-  position: absolute;
   bottom: 30px;
   right: 10px;
-  background: rgba(255, 26, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255,2);
-  padding: 42px;
-  border-radius: 22px;
-  color: white;
-  font-family: sans-serif;
-  z-index: 1000;
-  max-width: 350px;
+  background: var(--color-reset);
   text-align: right;
-  transition: transform 0.5s ease-in-out, background 0.5s ease-in-out; 
 }
 
+/* ENVIRONMENT MENU - positionné à gauche, centré verticalement */
+#environmentMenu {
+  position: absolute;
+  left: 10px;
+  top: 50%; /* Centre vertical */
+  transform: translateY(-50%); /* Ajuste le centrage */
+  background: var(--color-env);
+  z-index: 10000; /* Au-dessus de Cesium */
+  max-width: 350px;
+  opacity: 0.45;
+  filter: blur(1.2px);
+  transition: transform 0.18s linear, opacity 0.12s linear, filter 0.12s linear;
+  pointer-events: auto;
+}
+/* États hover et open - on garde l'opacité à 1 */
+#environmentMenu.hovered,
+#environmentMenu.open {
+  z-index: 10001;
+  opacity: 1; /* ✅ Toujours opaque à 100% au survol */
+  filter: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}
+
+/* État collapsed - légèrement moins opaque */
+#environmentMenu.collapsed {
+  transform: translateX(calc(-100% + 28px)) translateY(-50%);
+  opacity: 0.45; /* ✅ Changé de 0.35 à 0.8 */
+  filter: blur(0.8px); /* ✅ Flou réduit */
+}
+
+/* Cacher le titre dans resetMenu */
 #resetMenu h3 {
   display: none;
 }
 
-/* --- RÈGLES GÉNÉRALES --- */
+.control-panel {
+  pointer-events: auto;
+  transition: transform 0.25s ease, opacity 0.15s linear, filter 0.15s linear;
+}
 
+.control-panel.hovered { 
+z-index: 10;
+  opacity: 1; 
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  filter: none;
+}
+
+
+
+
+/* Mode réduit (collapsed) */
+.control-panel.collapsed {
+  transform: translateX(calc(-100% + 25px));
+}
+
+#traceMenu.collapsed,
+#resetMenu.collapsed {
+  transform: translateX(calc(100% - 25px));
+}
+
+
+/* ===========================================
+   COMPOSANTS UI
+   =========================================== */
+/* Titres */
 .control-panel h3 {
   margin: 0 0 10px 0;
   font-size: 16px;
+  font-weight: bold;
 }
 
+/* Groupes de contrôle */
 .control-group {
   margin-bottom: 12px;
 }
@@ -99,124 +196,99 @@ html, body, #cesiumContainer {
   display: block;
   margin-bottom: 5px;
   font-size: 13px;
+  cursor: pointer;
 }
 
-#fileInput, #modelInput {
+/* Inputs et selects */
+#fileInput,
+#modelInput,
+select,
+input[type="text"],
+input[type="password"] {
   width: 100%;
   padding: 6px;
   border-radius: 4px;
   border: 1px solid #666;
-  background: #333;
-  color: white;
+  background: var(--color-dark);
+  color: var(--color-light);
   font-size: 12px;
+  box-sizing: border-box;
 }
 
+/* Boutons */
 button {
-  background: #4CAF50;
-  color: white;
+  background: var(--color-success);
+  color: var(--color-light);
   border: none;
   padding: 8px 15px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  margin-right: 5px;
-  /* Amélioration tactile */
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--touch-min-height);
+  min-width: var(--touch-min-width);
   touch-action: manipulation;
+  transition: background-color var(--transition-speed);
+  font-weight: 500;
 }
 
 button:hover {
-  background: #45a049;
+  background-color: #45a049;
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 button:disabled {
   background: #666;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
+/* Variantes de boutons */
 button.danger {
-  background: #f44336;
+  background: var(--color-danger);
 }
 
 button.danger:hover {
   background: #da190b;
 }
 
-#status {
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 32px;
-  display: none;
-}
-
-#status.info {
-  background: rgba(33, 150, 243, 0.3);
-  border: 1px solid #2196F3;
-}
-
-#status.error {
-  background: rgba(244, 67, 54, 0.3);
-  border: 1px solid #f44336;
-}
-
-#status.success {
-  background: rgba(76, 175, 80, 0.3);
-  border: 1px solid #4CAF50;
-}
-
-#status {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1000;
-}
-
-.slider-group {
+/* Sliders */
+.slider-container {
   margin-top: 10px;
 }
 
-.slider-group label {
+.slider-container label {
   display: flex;
   justify-content: space-between;
   margin-bottom: 5px;
+  font-size: 12px;
 }
 
 input[type="range"] {
   width: 100%;
-  /* Amélioration tactile pour les sliders */
-  min-height: 44px;
+  min-height: var(--touch-min-height);
   touch-action: none;
+  cursor: pointer;
 }
 
+/* Checkboxes */
 .checkbox-group {
   display: flex;
   align-items: center;
   gap: 8px;
-  /* Amélioration tactile */
-  min-height: 44px;
+  min-height: var(--touch-min-height);
 }
 
 .checkbox-group input[type="checkbox"] {
   width: auto;
-  /* Agrandir les checkboxes sur mobile */
   min-width: 20px;
   min-height: 20px;
+  cursor: pointer;
 }
 
-.model-name {
-  padding: 6px 10px;
-  background: #333;
-  border-radius: 4px;
-  border: 1px solid #666;
-  font-size: 12px;
-  color: #aaa;
-  margin-top: 5px;
-  display: none;
-}
-
+/* Layouts en ligne */
 .controls-row {
   display: flex;
   align-items: center;
@@ -232,69 +304,7 @@ input[type="range"] {
   flex-grow: 1;
 }
 
-.slider-container label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  font-size: 12px;
-}
-
-/* --- ANIMATION ET SPINNER GLOBAL --- */
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-#globalSpinner { 
-  display: none; 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
-  background: rgba(0,0,0,0.7); 
-  z-index: 9999; 
-  justify-content: center; 
-  align-items: center; 
-  flex-direction: column; 
-  color: white; 
-  font-family: sans-serif;
-}
-
-#globalSpinner div:nth-child(1) { 
-  font-size: 20px; 
-  margin-bottom: 20px;
-}
-
-#globalSpinner div:nth-child(2) { 
-  width: 50px; 
-  height: 50px; 
-  border: 5px solid #f3f3f3; 
-  border-top: 5px solid #3498db; 
-  border-radius: 50%; 
-  animation: spin 1s linear infinite;
-}
-
-#globalSpinnerText { 
-  margin-top: 20px; 
-  font-size: 14px;
-}
-
-/* ************************************************* */
-/* RÈGLES POUR LE MODE DISSIMULÉ */
-/* ************************************************* */
-
-#mobileMenu.collapsed {
-  transform: translateX(calc(-100% + 25px));
-}
-
-#traceMenu.collapsed,
-#resetMenu.collapsed {
-  transform: translateX(calc(100% - 25px));
-}
-
-/* ✅ TOOLTIP CUSTOM POUR BOUTON CHARGEMENT MODÈLE */
+/* Tooltips */
 .tooltip-btn {
   position: relative;
 }
@@ -302,8 +312,8 @@ input[type="range"] {
 .tooltip-content {
   visibility: hidden;
   opacity: 0;
-  background: #333;
-  color: #fff;
+  background: var(--color-dark);
+  color: var(--color-light);
   text-align: left;
   border-radius: 6px;
   padding: 8px 12px;
@@ -318,7 +328,7 @@ input[type="range"] {
   line-height: 1.4;
   border: 1px solid #666;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition: opacity var(--transition-speed), visibility var(--transition-speed);
   margin-bottom: 5px;
   pointer-events: none;
 }
@@ -330,7 +340,7 @@ input[type="range"] {
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #333;
+  border-top-color: var(--color-dark);
 }
 
 .tooltip-btn:hover .tooltip-content,
@@ -339,60 +349,110 @@ input[type="range"] {
   opacity: 1;
 }
 
+/* ===========================================
+   COMPOSANTS SPÉCIFIQUES
+   =========================================== */
+/* Label FL115 */
 .fl115-label {
   font-size: 22px;
-  font-weight: 700; 
+  font-weight: 700;
   color: red;
-  text-shadow:
+  text-shadow: 
     -1px -1px 0 white,
-     1px -1px 0 white,
-    -1px  1px 0 white,
-     1px  1px 0 white;
+    1px -1px 0 white,
+    -1px 1px 0 white,
+    1px 1px 0 white;
 }
 
-/* ✅ Z-INDEX + FILIGRANES POUR MENUS */
-.control-panel {
-  z-index: 5;
-  opacity: 1;
-  transition: z-index 0.2s ease, opacity 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
+/* Spinner global */
+#globalSpinner {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  color: var(--color-light);
+  font-family: sans-serif;
 }
 
-.control-panel.hovered {
-  z-index: 10;
-  opacity: 1;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+#globalSpinner div:nth-child(1) {
+  font-size: 20px;
+  margin-bottom: 20px;
 }
 
-.control-panel:not(.hovered) {
-  opacity: 0.6;
-  filter: blur(1px);
+#globalSpinner div:nth-child(2) {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-body.no-hovered-menu .control-panel {
-  opacity: 1;
-  filter: none;
-}
-
-#loadCesiumKeyBtn::before {
-  content: "🌍 ";
+#globalSpinnerText {
+  margin-top: 20px;
   font-size: 14px;
 }
 
-/* ************************************************* */
-/* 🎯 MEDIA QUERIES RESPONSIVE - MOBILE FIRST      */
-/* ************************************************* */
+/* Status messages */
+#status {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 32px;
+  display: none;
+}
 
-/* Tablettes et petits écrans (≤ 768px) */
+#status.info {
+  background: rgba(33, 150, 243, 0.3);
+  border: 1px solid var(--color-info);
+}
+
+#status.error {
+  background: rgba(244, 67, 54, 0.3);
+  border: 1px solid var(--color-danger);
+}
+
+#status.success {
+  background: rgba(76, 175, 80, 0.3);
+  border: 1px solid var(--color-success);
+}
+
+/* ===========================================
+   ANIMATIONS
+   =========================================== */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===========================================
+   MÉDIAS QUERIES RESPONSIVE
+   =========================================== */
+
+/* Tablettes (≤ 768px) */
 @media (max-width: 768px) {
-  /* Réduction du padding pour gagner de l'espace */
-  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
-    padding: 20px !important;
-    max-width: calc(100vw - 60px) !important;
+  :root {
+    --menu-padding: 20px;
+    --menu-radius: 12px;
+  }
+  
+  .control-panel {
+    max-width: calc(100vw - 60px);
     font-size: 14px;
   }
   
-  /* Menus collapsés : poignée plus large sur mobile */
-  #mobileMenu.collapsed {
+  .control-panel.collapsed {
     transform: translateX(calc(-100% + 40px));
   }
   
@@ -401,54 +461,67 @@ body.no-hovered-menu .control-panel {
     transform: translateX(calc(100% - 40px));
   }
   
-  #environmentMenu.collapsed {
-    transform: translate(calc(-100% + 40px), -50%);
+#environmentMenu.hovered,
+#environmentMenu.open {
+  z-index: 10001;
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+}  
+/* État collapsed - s'escamote vers la gauche */
+#environmentMenu.collapsed {
+  transform: translateX(calc(-100% + 28px)) translateY(-50%);
+  opacity: 0.35;
+  filter: blur(1.4px);
+}
+ 
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  #environmentMenu {
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: calc(100vw - 60px);
   }
   
-  /* Titres plus petits */
+  #environmentMenu.collapsed {
+    transform: translateX(calc(-100% + 40px)) translateY(-50%);
+  }
+}
+
+/* Smartphones portrait */
+@media (max-width: 480px) {
+  #environmentMenu {
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: calc(100vw - 40px);
+  }
+}
+
+/* Mode paysage mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  #environmentMenu {
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+  }
+  
+  #environmentMenu h3 {
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+} 
   .control-panel h3 {
     font-size: 14px;
   }
   
-  /* Boutons plus grands pour le tactile */
   button {
     font-size: 14px;
     padding: 10px 12px;
     min-height: 48px;
     width: 100%;
-    margin-right: 0;
-    margin-bottom: 8px;
   }
   
-  /* Inputs adaptés */
-  #fileInput, #modelInput, select {
-    font-size: 14px;
-    padding: 10px;
-    min-height: 48px;
-  }
-  
-  /* Sliders plus hauts */
-  input[type="range"] {
-    min-height: 48px;
-  }
-  
-  /* Checkboxes plus grandes */
-  .checkbox-group input[type="checkbox"] {
-    min-width: 24px;
-    min-height: 24px;
-  }
-  
-  .checkbox-group label {
-    font-size: 14px;
-  }
-  
-  /* Status adapté */
-  #status {
-    font-size: 18px;
-    max-width: 90vw;
-  }
-  
-  /* Tooltip mobile : en dessous au lieu d'au-dessus */
+  /* Tooltip mobile */
   .tooltip-content {
     left: 0;
     right: 0;
@@ -458,90 +531,185 @@ body.no-hovered-menu .control-panel {
     bottom: auto;
     top: 100%;
     margin-top: 5px;
-    margin-bottom: 0;
-    font-size: 13px;
   }
   
   .tooltip-content::after {
     top: auto;
     bottom: 100%;
     border-top-color: transparent;
-    border-bottom-color: #333;
+    border-bottom-color: var(--color-dark);
   }
   
-  /* Moins de blur pour les performances */
-  .control-panel:not(.hovered) {
-    filter: blur(0.5px);
-  }
-  
-  /* Controls-row en colonne sur mobile */
+  /* Layout adaptatif */
   .controls-row {
     flex-direction: column;
     gap: 8px;
   }
   
-  .rotate-btn-container {
-    width: 100%;
-  }
-  
+  .rotate-btn-container,
   .slider-container {
     width: 100%;
   }
 }
 
-/* Très petits écrans (≤ 480px) - Smartphones en portrait */
+/* Smartphones (≤ 480px) */
 @media (max-width: 480px) {
-  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
-    padding: 15px !important;
-    max-width: calc(100vw - 40px) !important;
-    border-radius: 12px;
+  :root {
+    --menu-padding: 15px;
   }
   
-  /* Titres encore plus compacts */
+  .control-panel {
+    max-width: calc(100vw - 40px);
+  }
+  
   .control-panel h3 {
     font-size: 13px;
     margin-bottom: 8px;
   }
   
-  /* Labels plus petits */
   .control-group label {
     font-size: 12px;
   }
   
-  /* Boutons compacts */
   button {
     font-size: 13px;
     padding: 8px 10px;
   }
-  
-  /* Réduire l'espace entre les groupes */
-  .control-group {
-    margin-bottom: 10px;
+
+/* ===========================================
+   UTILITAIRES ET CLASSES HELPER
+   =========================================== */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.help-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+.loading-indicator {
+  display: none;
+  padding: 6px 10px;
+  background: #333;
+  border-radius: 4px;
+  border: 1px solid #666;
+  font-size: 12px;
+  color: #ffecb3;
+  margin-bottom: 10px;
+}
+
+.global-spinner {
+  display: none;
+  /* Styles déjà définis */
+}
+
+.spinner-text {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-details {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.status-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 32px;
+  display: none;
+}
+
+.button-link {
+  display: block;
+  width: 100%;
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #666;
+  background: #2196F3;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.button-link:hover,
+.button-link:focus {
+  background-color: #1976D2;
+  text-decoration: underline;
+}
+/* Mode paysage mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root {
+    --menu-padding: 10px;
   }
   
-  /* Status encore plus compact */
-  #status {
-    font-size: 16px;
-    padding: 6px;
+  .control-panel {
+    font-size: 11px;
   }
   
-  /* Menu environnement : repositionner pour éviter le chevauchement */
-  #environmentMenu {
-    top: auto;
-    bottom: 120px;
-    transform: none;
+  .control-panel h3 {
+    font-size: 12px;
+    margin-bottom: 5px;
   }
   
-  #environmentMenu.collapsed {
-    transform: translateX(calc(-100% + 35px));
+  button {
+    padding: 6px 8px;
+    min-height: 36px;
+    font-size: 11px;
+  }
+  
+#environmentMenu {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-env);
+  z-index: 10000;
+}
+
+  #traceMenu {
+    top: 10px;
   }
 }
 
-/* Écrans très larges (≥ 1440px) - Confort desktop */
+/* Grands écrans (≥ 1440px) */
 @media (min-width: 1440px) {
-  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
-    max-width: 400px;
-    padding: 45px;
+  :root {
+    --menu-padding: 45px;
+    --menu-max-width: 400px;
   }
   
   .control-panel h3 {
@@ -552,37 +720,387 @@ body.no-hovered-menu .control-panel {
     font-size: 14px;
   }
 }
+/* À AJOUTER pour cacher définitivement les hamburgers */
+.menu-tab {
+  display: none !important;
+}
+/* ===========================================
+   FENÊTRE FLOTTANTE DASHBOARD
+   =========================================== */
+.floating-window {
+  position: absolute;
+  top: 150px;
+  left: calc(50% - 200px);
+  width: 400px;
+  background: rgba(33, 33, 33, 0.95);
+  border: 2px solid #4CAF50;
+  border-radius: 10px;
+  color: white;
+  font-family: sans-serif;
+  z-index: 10001;
+  display: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  cursor: move;
+}
 
-/* Mode paysage mobile (hauteur faible) */
-@media (max-height: 500px) and (orientation: landscape) {
-  #mobileMenu, #traceMenu, #resetMenu, #environmentMenu {
-    padding: 10px !important;
-    font-size: 11px;
+#dashboardTitleBar {
+  padding: 12px 15px;
+  background: linear-gradient(90deg, #4CAF50, #2196F3);
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#dashboardStatus {
+  font-size: 11px;
+  background: rgba(255,255,255,0.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.dashboard-controls button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 10px;
+  min-height: auto;
+  min-width: auto;
+  padding: 0;
+}
+
+.dashboard-content {
+  padding: 20px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.metric-card.speed {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.metric-card.altitude {
+  background: rgba(33, 150, 243, 0.15);
+  border-color: rgba(33, 150, 243, 0.3);
+}
+
+.metric-label {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.metric-card.speed .metric-value {
+  color: #4CAF50;
+}
+
+.metric-card.altitude .metric-value {
+  color: #2196F3;
+}
+
+.metric-unit {
+  font-size: 12px;
+}
+
+.details-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.details-section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.details-section td {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.details-section tr:last-child td {
+  border-bottom: none;
+}
+
+.details-section td:last-child {
+  text-align: right;
+  font-family: monospace;
+}
+
+.dashboard-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dashboard-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  min-height: auto;
+}
+
+#pauseResumeBtn {
+  background: #FF9800;
+}
+
+#exportDataBtn {
+  background: #9C27B0;
+}
+
+/* Responsive pour le dashboard */
+@media (max-width: 768px) {
+  .floating-window {
+    width: calc(100vw - 40px);
+    left: 20px;
+    top: 100px;
   }
   
-  .control-panel h3 {
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-  
-  .control-group {
-    margin-bottom: 6px;
-  }
-  
-  button {
-    padding: 6px 8px;
-    min-height: 36px;
-    font-size: 11px;
-  }
-  
-  /* Repositionner les menus pour éviter le débordement */
-  #environmentMenu {
-    top: 10px;
-    transform: none;
-  }
-  
-  #traceMenu {
-    top: 10px;
+  .metrics-grid {
+    grid-template-columns: 1fr;
   }
 }
 
+@media (max-width: 480px) {
+  .floating-window {
+    width: calc(100vw - 20px);
+    left: 10px;
+  }
+  
+  .dashboard-title {
+    font-size: 14px;
+  }
+}
+/* ===========================================
+   FENÊTRE FLOTTANTE DASHBOARD
+   =========================================== */
+.floating-window {
+  position: absolute;
+  top: 150px;
+  left: calc(50% - 200px);
+  width: 400px;
+  background: rgba(33, 33, 33, 0.95);
+  border: 2px solid #4CAF50;
+  border-radius: 10px;
+  color: white;
+  font-family: sans-serif;
+  z-index: 10001;
+  display: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  cursor: move;
+}
+
+#dashboardTitleBar {
+  padding: 12px 15px;
+  background: linear-gradient(90deg, #4CAF50, #2196F3);
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#dashboardStatus {
+  font-size: 11px;
+  background: rgba(255,255,255,0.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.dashboard-controls button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  margin-right: 10px;
+  min-height: auto;
+  min-width: auto;
+  padding: 0;
+  width: auto;
+}
+
+.dashboard-controls button:last-child {
+  margin-right: 0;
+}
+
+.dashboard-content {
+  padding: 20px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.metric-card {
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.metric-card.speed {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+.metric-card.altitude {
+  background: rgba(33, 150, 243, 0.15);
+  border-color: rgba(33, 150, 243, 0.3);
+}
+
+.metric-label {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+.metric-card.speed .metric-value {
+  color: #4CAF50;
+}
+
+.metric-card.altitude .metric-value {
+  color: #2196F3;
+}
+
+.metric-unit {
+  font-size: 12px;
+}
+
+.details-section {
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.details-section table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.details-section td {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.details-section tr:last-child td {
+  border-bottom: none;
+}
+
+.details-section td:last-child {
+  text-align: right;
+  font-family: monospace;
+}
+
+.dashboard-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dashboard-buttons button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  min-height: auto;
+  font-size: 13px;
+}
+
+#pauseResumeBtn {
+  background: #FF9800;
+}
+
+#exportDataBtn {
+  background: #9C27B0;
+}
+
+/* Responsive pour le dashboard */
+@media (max-width: 768px) {
+  .floating-window {
+    width: calc(100vw - 40px);
+    left: 20px;
+    top: 100px;
+  }
+  
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-window {
+    width: calc(100vw - 20px);
+    left: 10px;
+  }
+  
+  .dashboard-title {
+    font-size: 14px;
+  }
+}
