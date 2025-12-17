@@ -2,19 +2,62 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <!-- 🎯 VIEWPORT POUR LE RESPONSIVE 19h13 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
   <title>BOUGE avec 12Coeur</title>
-
-  <!-- CDN Cesium mis à jour -->
-  <script src="https://cdn.jsdelivr.net/npm/cesium@1.135/Build/Cesium/Cesium.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/cesium@1.135/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
-  <link href="style.css" rel="stylesheet"> 
+  
+  <!-- Cesium 1.135 (UNE SEULE FOIS) -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.135/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  
+  <!-- Tes scripts -->
+  <script src="TraceConverter.js"></script>
+  <script src="dashboard.js"></script>
+  
+  <!-- Style -->
+  <link href="style.css" rel="stylesheet">
 </head>
 
+
 <body>
+  <!-- Conteneur principal Cesium -->
   <div id="cesiumContainer"></div>
   
+  <!-- Dashboard flottant COMPLET (fond gris alpha 0.8) -->
+  <div id="dashboard" style="display: none; position: fixed; top: 150px; left: 50%; transform: translateX(-50%); 
+       background: rgba(128, 128, 128, 0.8); border: 2px solid #666; border-radius: 12px; padding: 15px; color: white; 
+       z-index: 1000; min-width: 320px; max-width: 420px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); 
+       font-family: Arial, sans-serif; cursor: default;">
+    <div id="dashboardHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; 
+         cursor: grab; padding-bottom: 8px; border-bottom: 1px solid #444;">
+      <h3 style="margin: 0; color: #00bcd4; user-select: none;">📊 Tableau de bord</h3>
+      <div>
+        <button id="minimizeDashboard" style="background: none; border: none; color: #aaa; font-size: 18px; cursor: pointer; margin-right: 8px;">–</button>
+        <button id="closeDashboard" style="background: #f44336; color: white; border: none; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; font-weight: bold;">✕</button>
+      </div>
+    </div>
+    <div class="dashboard-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
+        <div>
+          <strong>Vitesse</strong><br>
+          <span id="speedValue" style="font-size: 22px; color: #4caf50;">0</span> km/h
+        </div>
+        <div>
+          <strong>Altitude</strong><br>
+          <span id="altitudeValue" style="font-size: 22px; color: #2196f3;">0</span> m
+        </div>
+        <div>
+          <strong>Distance</strong><br>
+          <span id="distanceValue" style="font-size: 22px; color: #ff9800;">0</span> km
+        </div>
+        <div>
+          <strong>Temps</strong><br>
+          <span id="elapsedTimeValue" style="font-size: 22px; color: #e91e63;">00:00:00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MENU MOBILE -->
   <div id="mobileMenu" class="control-panel">
     <h3>Mobile</h3>
     <div class="control-group">
@@ -67,17 +110,21 @@
     </div>
   </div>
 
+  <!-- MENU TRACE -->
   <div id="traceMenu" class="control-panel">
     <h3>Trace</h3>
+    
     <div id="loadingSpinner" style="display:none; padding: 6px 10px; background: #333; border-radius: 4px; border: 1px solid #666; font-size: 12px; color: #ffecb3; margin-bottom: 10px;">
       ⏳ Chargement du mobile...
     </div>
     
+    <!-- Import fichier trace -->
     <div class="control-group">
       <label for="fileInput">Fichier trace (IGC, KML, GPX, TCX) :</label>
       <input type="file" id="fileInput" accept=".igc,.kml,.gpx,.tcx" />
     </div>
 
+    <!-- Décalage altitude -->
     <div class="controls-row" style="margin-top: 12px;">
       <div class="slider-container">
         <label>
@@ -88,6 +135,13 @@
       </div>
     </div>
     
+    <!-- Case à cocher Dashboard -->
+    <div class="control-group checkbox-group" style="margin-top: 12px;">
+      <input type="checkbox" id="dashboardCheckbox" />
+      <label for="dashboardCheckbox" style="margin: 0;">📊 Afficher le dashboard</label>
+    </div>
+    
+    <!-- Options d'affichage trace -->
     <div class="control-group checkbox-group" style="margin-top: 12px;">
       <input type="checkbox" id="traceCheckbox" checked />
       <label for="traceCheckbox" style="margin: 0;">Afficher la trace</label>
@@ -104,6 +158,7 @@
     </div>
   </div>
 
+  <!-- MENU ACTIONS -->
   <div id="resetMenu" class="control-panel">
     <h3>Actions</h3> 
     <div class="control-group">
@@ -111,6 +166,7 @@
     </div>
   </div>
 
+  <!-- MENU ENVIRONNEMENT -->
   <div id="environmentMenu" class="control-panel">
     <h3>Environnement</h3>
     
@@ -162,15 +218,93 @@
     </div>
   </div>
   
+  <!-- Spinner global -->
   <div id="globalSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; font-family: sans-serif;">
     <div style="font-size: 20px; margin-bottom: 20px;">⏳ Chargement en cours...</div>
     <div style="width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
     <div id="globalSpinnerText" style="margin-top: 20px; font-size: 14px;">Chargement de la trace</div>
   </div>
   
+  <!-- Status -->
   <div id="status">⏳ Chargement...</div>
   
+  <!-- Scripts -->
   <script src="TraceConverter.js"></script>
   <script src="./script.js"></script>
+  <script src="dashboard.js"></script>
+  
+  <!-- Script inline pour dashboard (drag + croix + case – simple et sans erreur) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const dashboard = document.getElementById('dashboard');
+      const dashboardCheckbox = document.getElementById('dashboardCheckbox');
+      const closeDashboard = document.getElementById('closeDashboard');
+      const dashboardHeader = document.getElementById('dashboardHeader');
+      const dashboardContent = document.querySelector('.dashboard-content');
+
+      if (!dashboard || !dashboardCheckbox || !closeDashboard || !dashboardHeader) return;
+
+      // Afficher/masquer avec la case
+      dashboardCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+          dashboard.style.display = 'block';
+          dashboard.style.left = '50%';
+          dashboard.style.top = '150px';
+          dashboard.style.transform = 'translateX(-50%)';
+        } else {
+          dashboard.style.display = 'none';
+        }
+      });
+
+      // Croix ferme et décoche
+      closeDashboard.addEventListener('click', function() {
+        dashboard.style.display = 'none';
+        dashboardCheckbox.checked = false;
+      });
+
+      // Drag & drop (main qui glisse vraiment)
+      let isDragging = false;
+      let startX, startY, initialLeft, initialTop;
+
+      dashboardHeader.addEventListener('mousedown', function(e) {
+        if (e.target === closeDashboard || e.target === document.getElementById('minimizeDashboard')) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = dashboard.offsetLeft;
+        initialTop = dashboard.offsetTop;
+        dashboardHeader.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        const newLeft = initialLeft + (e.clientX - startX);
+        const newTop = initialTop + (e.clientY - startY);
+        dashboard.style.left = newLeft + 'px';
+        dashboard.style.top = newTop + 'px';
+        dashboard.style.transform = 'none';
+      });
+
+      document.addEventListener('mouseup', function() {
+        isDragging = false;
+        dashboardHeader.style.cursor = 'grab';
+      });
+
+      // Minimiser (optionnel)
+      const minimizeBtn = document.getElementById('minimizeDashboard');
+      if (minimizeBtn) {
+        minimizeBtn.addEventListener('click', function() {
+          if (dashboardContent.style.display === 'none') {
+            dashboardContent.style.display = 'block';
+            minimizeBtn.textContent = '–';
+          } else {
+            dashboardContent.style.display = 'none';
+            minimizeBtn.textContent = '+';
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
