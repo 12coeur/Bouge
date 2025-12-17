@@ -2,13 +2,39 @@
 /**
  * TraceConverter - Convertisseur universel de traces GPS
  * Supporte: GPX, KML, IGC, TCX
- * Version 2.0 - Correction des timestamps IGC avec fallback date
+ * Version 2.1 - AJOUT DE LA FONCTION LOAD (CORRECTION ERREUR)
  */
 
 (function(global) {
     'use strict';
     
     const TraceConverter = {
+        
+        /**
+         * CHARGEUR PRINCIPAL : Lit le fichier et détermine le format (AJOUT)
+         */
+        load: function(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const fileContent = e.target.result;
+                    const fileName = file.name;
+                    // Déduction du format à partir de l'extension
+                    const format = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+                    try {
+                        // Utilise la méthode parse existante
+                        const data = this.parse(fileContent, format);
+                        resolve(data);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = (e) => {
+                    reject(new Error("Erreur de lecture du fichier."));
+                };
+                reader.readAsText(file);
+            });
+        },
   
         /**
          * Parse une trace brute (string) pour extraire les points GPS
@@ -453,5 +479,7 @@ HFPLT${this.escapeIGC(traceData.name)}
         global.TraceConverter = TraceConverter;
     }
     
-    console.log("✅ TraceConverter v2.0 chargé - Correction IGC timestamp avec fallback date");
+    console.log("✅ TraceConverter v2.1 chargé - Avec fonction load()");
+
 })(this);
+window.TraceConverter = TraceConverter;  // Rend TraceConverter accessible globalement
