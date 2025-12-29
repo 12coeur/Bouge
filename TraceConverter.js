@@ -483,3 +483,4 @@ HFPLT${this.escapeIGC(traceData.name)}
 
 })(this);
 window.TraceConverter = TraceConverter;  // Rend TraceConverter accessible globalement
+
