@@ -191,3 +191,5 @@ document.addEventListener('DOMContentLoaded', function() {
   // Pour debug: afficher un message
   console.log('Dashboard mobile initialisé');
 });
+
+	
