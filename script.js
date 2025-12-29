@@ -39,6 +39,7 @@ menus.forEach((menu, index) => {
 // Liste des modèles disponibles dans le dossier models
 const AVAILABLE_MODELS = [
    'PIC.glb',
+   'PP Advance bleue.glb',
    'PP Niviuk Zéno Bleue Mauve.glb',
    'PP Gin Boom orange.glb',
    'PP Ozone Zénno2 jaune.glb',
@@ -1500,3 +1501,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Écouteur global DOMContentLoaded (une seule fois, pour tout init)
 window.addEventListener('DOMContentLoaded', initApp);
+
