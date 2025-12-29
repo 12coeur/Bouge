@@ -104,13 +104,13 @@ html, body, #cesiumContainer {
 }
 
 #traceMenu {
-  top: 100px;
+  top: 80px;
   right: 10px;
   background: var(--color-trace);
 }
 
 #resetMenu {
-  bottom: 30px;
+  bottom: 80px;
   right: 10px;
   background: var(--color-reset);
   text-align: right;
@@ -120,7 +120,7 @@ html, body, #cesiumContainer {
 #environmentMenu {
   position: absolute;
   left: 10px;
-  top: 50%; /* Centre vertical */
+  top: 70%; /* Centre vertical */
   transform: translateY(-50%); /* Ajuste le centrage */
   background: var(--color-env);
   z-index: 10000; /* Au-dessus de Cesium */
@@ -1104,3 +1104,4 @@ input[type="range"] {
     font-size: 14px;
   }
 }
+
